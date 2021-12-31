@@ -1,0 +1,27 @@
+<template>
+  <button class="btn btn-primary">
+    <i class="fa fa-2x" :class="icon"></i>
+  </button>
+</template>
+
+<script>
+export default {
+  props: {
+    icon: {
+      type: Text,
+      default: "fa-plus",
+    },
+  },
+};
+</script>
+
+<style lang='scss' scoped>
+button {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 100%;
+}
+</style>
