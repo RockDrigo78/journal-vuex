@@ -24,17 +24,17 @@
       ></textarea>
     </div>
   </template>
-  <Fab icon="fa-save" />
   <img
     src="https://cdn.pixabay.com/photo/2021/12/11/07/59/hotel-6862159_640.jpg"
     alt="photo"
     class="img-thumbnail"
   />
+  <Fab icon="fa-save" @on:click="saveEntry" />
 </template>
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 import getDayMonthYear from "@/modules/daybook/helpers/getDayMonthYear.js";
 
 export default {
@@ -53,10 +53,14 @@ export default {
     };
   },
   methods: {
+    ...mapActions("journal", ["updateEntry"]),
     loadEntry() {
       const entry = this.getEntryById(this.id);
       if (!entry) return this.$router.push({ name: "no-entry" });
       this.entry = entry;
+    },
+    async saveEntry() {
+      this.updateEntry(this.entry);
     },
   },
   computed: {
