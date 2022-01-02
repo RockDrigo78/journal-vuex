@@ -8,7 +8,7 @@
 export default {
   props: {
     icon: {
-      type: Text,
+      type: String,
       default: "fa-plus",
     },
   },

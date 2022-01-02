@@ -1,24 +1,50 @@
 <template>
   <div
     class="entry-container mb-3 pointer p-2"
-    @click="$router.push({ name: 'entry', params: { id: 10 } })"
+    @click="$router.push({ name: 'entry', params: { id: entry.id } })"
   >
     <div class="entry-title d-flex">
-      <span class="text-success fs-5 fw-bold">December</span>
-      <span class="mx-1 fs-5">31</span>
-      <span class="mx-2 fw-light">2021</span>
+      <span class="text-success fs-5 fw-bold">{{ day }}</span>
+      <span class="mx-1 fs-5">{{ month }}</span>
+      <span class="mx-2 fw-light">{{ year }},</span>
+      <span class="mx-2 fw-light">{{ weekday }}</span>
     </div>
     <div class="entry-description">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla
-      voluptatibus dolore exercitationem veniam quaerat, enim id nihil
-      doloremque temporibus! Esse iste voluptas at reiciendis officiis iure
-      velit sed quaerat distinctio.
+      {{ shortText }}
     </div>
   </div>
 </template>
 
 <script>
-export default {};
+import getDayMonthYear from "@/modules/daybook/helpers/getDayMonthYear.js";
+
+export default {
+  props: {
+    entry: {
+      type: Object,
+      required: true,
+    },
+  },
+  computed: {
+    shortText() {
+      return this.entry.text.length > 130
+        ? this.entry.text.substring(0, 130) + "..."
+        : this.entry.text;
+    },
+    day() {
+      return getDayMonthYear(this.entry.date).day;
+    },
+    weekday() {
+      return getDayMonthYear(this.entry.date).weekday;
+    },
+    month() {
+      return getDayMonthYear(this.entry.date).month;
+    },
+    year() {
+      return getDayMonthYear(this.entry.date).year;
+    },
+  },
+};
 </script>
 
 <style lang='scss' scoped>

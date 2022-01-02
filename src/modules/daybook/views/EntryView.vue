@@ -1,23 +1,29 @@
 <template>
-  <div class="entry-title d-flex justify-content-between p-2">
-    <div>
-      <span class="text-success fs-3 fw-bold">December</span>
-      <span class="mx-1 fs-3">31</span>
-      <span class="mx-2 fs-4 fw-light">2021</span>
+  <template v-if="entry">
+    <div class="entry-title d-flex justify-content-between p-2">
+      <div>
+        <span class="text-success fs-3 fw-bold">{{ day }}</span>
+        <span class="mx-1 fs-3">{{ month }}</span>
+        <span class="mx-2 fs-4 fw-light">{{ year }},</span>
+        <span class="mx-2 fs-4 fw-light">{{ weekday }}</span>
+      </div>
+      <div>
+        <button class="btn btn-danger mx-2">
+          Delete <i class="fa fa-trash-alt"></i>
+        </button>
+        <button class="btn btn-primary">
+          Upload photo <i class="fa fa-upload"></i>
+        </button>
+      </div>
     </div>
-    <div>
-      <button class="btn btn-danger mx-2">
-        Delete <i class="fa fa-trash-alt"></i>
-      </button>
-      <button class="btn btn-primary">
-        Upload photo <i class="fa fa-upload"></i>
-      </button>
+    <hr />
+    <div class="d-flex flex-column px-3 h-75">
+      <textarea
+        placeholder="What happened today?"
+        v-model="entry.text"
+      ></textarea>
     </div>
-  </div>
-  <hr />
-  <div class="d-flex flex-column px-3 h-75">
-    <textarea placeholder="What happened today?"></textarea>
-  </div>
+  </template>
   <Fab icon="fa-save" />
   <img
     src="https://cdn.pixabay.com/photo/2021/12/11/07/59/hotel-6862159_640.jpg"
@@ -28,9 +34,53 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
+import { mapGetters } from "vuex";
+import getDayMonthYear from "@/modules/daybook/helpers/getDayMonthYear.js";
+
 export default {
+  props: {
+    id: {
+      type: String,
+      required: true,
+    },
+  },
   components: {
     Fab: defineAsyncComponent(() => import("../components/Fab.vue")),
+  },
+  data: () => {
+    return {
+      entry: null,
+    };
+  },
+  methods: {
+    loadEntry() {
+      const entry = this.getEntryById(this.id);
+      if (!entry) return this.$router.push({ name: "no-entry" });
+      this.entry = entry;
+    },
+  },
+  computed: {
+    ...mapGetters("journal", ["getEntryById"]),
+    day() {
+      return getDayMonthYear(this.entry.date).day;
+    },
+    weekday() {
+      return getDayMonthYear(this.entry.date).weekday;
+    },
+    month() {
+      return getDayMonthYear(this.entry.date).month;
+    },
+    year() {
+      return getDayMonthYear(this.entry.date).year;
+    },
+  },
+  created() {
+    this.loadEntry();
+  },
+  watch: {
+    id() {
+      this.loadEntry();
+    },
   },
 };
 </script>
