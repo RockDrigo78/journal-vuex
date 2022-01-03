@@ -3,7 +3,7 @@
     <h1 class="align-self-center">Nothing Selected</h1>
   </div>
 
-  <Fab />
+  <Fab @on:click="createNewEntry" />
 </template>
 
 <script>
@@ -13,6 +13,11 @@ export default {
     Fab: defineAsyncComponent(() =>
       import("@/modules/daybook/components/Fab.vue")
     ),
+  },
+  methods: {
+    createNewEntry() {
+      this.$router.push({ name: "entry", params: { id: "new" } });
+    },
   },
 };
 </script>
