@@ -9,6 +9,13 @@
         <span class="mx-2 fs-4 fw-light">{{ hour }}</span>
       </div>
       <div>
+        <input
+          v-show="false"
+          type="file"
+          @change="onSelectedfile"
+          ref="imageSelector"
+          accept="image/png, image/jpeg"
+        />
         <button
           v-if="entry.id"
           class="btn btn-danger mx-2"
@@ -16,7 +23,7 @@
         >
           Delete <i class="fa fa-trash-alt"></i>
         </button>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" @click="onSelectImage">
           Upload photo <i class="fa fa-upload"></i>
         </button>
       </div>
@@ -30,9 +37,16 @@
     </div>
   </template>
   <img
-    src="https://cdn.pixabay.com/photo/2021/12/11/07/59/hotel-6862159_640.jpg"
+    v-if="entry.picture && !localImage"
+    :src="entry.picture"
     alt="photo"
-    class="img-thumbnail"
+    class="img-thumbnail test"
+  />
+  <img
+    v-if="!entry.picture && localImage"
+    :src="localImage"
+    alt="photo"
+    class="img-thumbnail test1"
   />
   <Fab icon="fa-save" @on:click="saveEntry" />
 </template>
@@ -40,7 +54,9 @@
 <script>
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions } from "vuex";
-import getDayMonthYear from "@/modules/daybook/helpers/getDayMonthYear.js";
+import swal from "sweetalert2";
+import getDayMonthYear from "../helpers/getDayMonthYear.js";
+import uploadImage from "../helpers/uploadImage.js";
 
 export default {
   props: {
@@ -55,6 +71,8 @@ export default {
   data: () => {
     return {
       entry: null,
+      localImage: null,
+      file: null,
     };
   },
   methods: {
@@ -73,6 +91,16 @@ export default {
       this.entry = entry;
     },
     async saveEntry() {
+      new swal({
+        title: "Please wait",
+        allowOutsideClick: false,
+      });
+      swal.showLoading();
+
+      const picture = await uploadImage(this.file);
+
+      this.entry.picture = picture;
+
       if (this.entry.id) {
         await this.updateEntry(this.entry);
       } else {
@@ -80,10 +108,47 @@ export default {
           this.$router.push({ name: "entry", params: { id: this.entry.id } })
         );
       }
+
+      swal.fire("Saving", "Entry successfuly registered", "success");
+      this.localImage = null;
     },
     async onDeleteEntry() {
-      await this.deleteEntry(this.entry.id);
-      this.$router.push({ name: "no-entry" });
+      const result = await swal.fire({
+        title: "Are you sure to delete?",
+        text: "this action cannot be undone",
+        showDenyButton: "true",
+        confirmButtonText: "Yes",
+      });
+
+      if (result.isConfirmed) {
+        new swal({
+          title: "Please wait",
+          allowOutsideClick: false,
+        });
+        swal.showLoading();
+
+        await this.deleteEntry(this.entry.id);
+        this.$router.push({ name: "no-entry" });
+
+        swal.fire("Deleted", "", "success");
+      }
+    },
+    onSelectedfile(evt) {
+      const file = evt.target.files[0];
+      if (!file) {
+        this.localImage = null;
+        this.file = null;
+        return;
+      }
+
+      this.file = file;
+
+      const fr = new FileReader();
+      fr.readAsDataURL(file);
+      fr.onload = () => (this.localImage = fr.result);
+    },
+    onSelectImage() {
+      this.$refs.imageSelector.click();
     },
   },
   computed: {
