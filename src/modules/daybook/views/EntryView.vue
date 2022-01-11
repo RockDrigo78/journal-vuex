@@ -59,6 +59,7 @@ import getDayMonthYear from "../helpers/getDayMonthYear.js";
 import uploadImage from "../helpers/uploadImage.js";
 
 export default {
+  name: "EntryView",
   props: {
     id: {
       type: String,
@@ -121,7 +122,7 @@ export default {
       });
 
       if (result.isConfirmed) {
-        new swal({
+        swal.fire({
           title: "Please wait",
           allowOutsideClick: false,
         });
